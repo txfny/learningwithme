@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learning Out Loud</title>
+<meta name="description" content="A series of interactive lessons: only the things that taught me something that could teach you too.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F2EADB; --paper-2: #F8F1E4; --paper-3: #EADFC9;
+    --ink: #4A4136; --ink-soft: #6E6354; --ink-faint: #A4977F;
+    --line: rgba(74,65,54,.30); --line-soft: rgba(74,65,54,.15);
+    --honey: #E7BE76; --sage: #9CAE86; --sage-soft: #C9D6B8; --blush: #D69E8E; --blush-soft: #EBD0C7;
+    --dusk: #C7B2CE; --skyblue: #AEC8CC; --win-sky: #CBDDDA;
+    --serif: "Newsreader", Georgia, serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--paper); }
+  body { font-family: var(--serif); color: var(--ink); font-size: 17px; line-height: 1.6; font-weight: 300; -webkit-font-smoothing: antialiased; }
+  body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .5;
+    background-image: radial-gradient(circle at 25% 35%, rgba(74,65,54,.02) 1px, transparent 2px),
+                      radial-gradient(circle at 75% 70%, rgba(74,65,54,.02) 1px, transparent 2px);
+    background-size: 26px 26px, 34px 34px; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--blush); outline-offset: 4px; border-radius: 6px; }
+
+  /* string lights */
+  .lights { position: fixed; top: 0; left: 0; right: 0; z-index: 4; pointer-events: none; line-height: 0; }
+  .lights .wire { fill: none; stroke: var(--ink-faint); stroke-width: 1; opacity: .6; }
+  .lights .bulb { fill: var(--honey); stroke: var(--ink-faint); stroke-width: .7; filter: drop-shadow(0 0 3px rgba(231,190,118,.85)); }
+
+  /* cozy decor */
+  .decor { position: fixed; z-index: 0; pointer-events: none; opacity: .9;
+    stroke: var(--sage); fill: none; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
+  .decor .pot { stroke: var(--ink-faint); fill: var(--paper-3); }
+  .decor.left { left: 8px; bottom: 0; width: 120px; height: 150px; }
+  .decor.right { right: 14px; top: 76px; width: 96px; height: 140px; }
+  .decor.shelf { right: 16px; top: 250px; width: 124px; height: 120px; stroke: var(--ink-faint); }
+  .steam { transform-box: fill-box; transform-origin: center; }
+  .steam1 { animation: steam 2.6s ease-in-out infinite; }
+  .steam2 { animation: steam 2.6s ease-in-out .9s infinite; }
+  @keyframes steam { 0%{opacity:0;transform:translateY(3px)} 35%{opacity:.6} 100%{opacity:0;transform:translateY(-9px)} }
+  .decor.cat { left: 150px; bottom: 8px; width: 96px; height: 64px; stroke: var(--ink); pointer-events: auto; cursor: pointer; }
+  .heart { position: fixed; z-index: 8; pointer-events: none; color: var(--blush); font-style: italic; font-size: 16px; animation: floatup 1.1s ease-out forwards; }
+  @keyframes floatup { 0%{opacity:0;transform:translateY(0) scale(.6)} 20%{opacity:1} 100%{opacity:0;transform:translateY(-50px) scale(1.15)} }
+  @media (max-width: 540px) { .decor, .lights { display: none; } }
+
+  .wrap { position: relative; z-index: 1; max-width: 660px; margin: 0 auto; padding: 0 24px 90px; }
+
+  /* the doorway: the room's window, at sunrise */
+  .hero { padding: 64px 0 10px; }
+  .door { position: relative; height: 200px; max-width: 360px; border: 2px solid var(--ink);
+    border-radius: 110px 110px 16px 16px; overflow: hidden; box-shadow: 0 6px 0 var(--line-soft); margin-bottom: 30px;
+    background: linear-gradient(180deg, var(--dusk) 0%, var(--blush-soft) 48%, color-mix(in srgb, var(--honey) 45%, var(--paper-2)) 100%); }
+  .door .bar-v { position: absolute; top: 0; bottom: 0; left: 50%; width: 1.5px; background: var(--ink); opacity: .3; }
+  .door .bar-h { position: absolute; left: 0; right: 0; top: 58%; height: 1.5px; background: var(--ink); opacity: .3; }
+  .door svg.scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .scene .line { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .sun { fill: var(--honey); stroke: var(--ink); stroke-width: 1.6; }
+  .scene .rise { animation: rise 3s cubic-bezier(.2,.7,.2,1) both; }
+  .scene .hill { fill: var(--sage-soft); stroke: var(--ink); stroke-width: 1.6; }
+  @keyframes rise { from { transform: translateY(46px); } to { transform: translateY(0); } }
+  .leaf { position: absolute; top: -14px; width: 9px; height: 5px; border-radius: 50%; background: var(--honey); opacity: 0; animation: fall linear infinite; }
+  @keyframes fall { 0%{transform:translateY(-16px) rotate(0);opacity:0} 14%{opacity:.85} 86%{opacity:.85} 100%{transform:translateY(210px) translateX(var(--sx,10px)) rotate(160deg);opacity:0} }
+
+  .eyebrow { font-family: var(--mono); font-size: 10px; letter-spacing: .24em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 12px; }
+  h1 { font-style: italic; font-weight: 300; font-size: clamp(38px, 7vw, 56px); line-height: 1.05; letter-spacing: -0.01em; margin-bottom: 26px; }
+
+  /* frogo says hi */
+  .say { display: flex; align-items: flex-end; gap: 14px; margin-bottom: 8px; }
+  .buddy { flex: none; position: relative; width: 84px; }
+  .buddy svg.frogo { position: relative; z-index: 1; display: block; margin: 0 auto; animation: bob 3.4s ease-in-out infinite; }
+  .buddy svg.cushion { position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); z-index: 0; }
+  @keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-5px) } }
+  .bubble { position: relative; background: var(--paper-2); border: 1.3px solid var(--ink); border-radius: 16px;
+    box-shadow: 0 4px 0 var(--line-soft); padding: 14px 18px; font-style: italic; font-size: 19px; line-height: 1.45; margin-bottom: 18px; }
+  .bubble::before { content: ""; position: absolute; left: -9px; bottom: 16px; width: 14px; height: 14px; background: var(--paper-2);
+    border-left: 1.3px solid var(--ink); border-bottom: 1.3px solid var(--ink); transform: rotate(45deg); }
+
+  section { margin-top: 66px; }
+  h2 { font-style: italic; font-weight: 400; font-size: 27px; margin-bottom: 14px; }
+  p { margin-bottom: 14px; }
+  .soft { color: var(--ink-soft); }
+  .quote { font-style: italic; font-size: 22px; line-height: 1.4; margin: 22px 0; padding: 4px 0 4px 18px; border-left: 2px solid var(--blush); }
+
+  .rows { list-style: none; border-top: 1px dashed var(--line); }
+  .rows li { display: grid; grid-template-columns: 12px 1fr; gap: 16px; align-items: baseline; padding: 15px 4px; border-bottom: 1px dashed var(--line); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; transform: translateY(-1px); }
+  .rows b { font-weight: 400; font-style: italic; font-size: 19px; }
+
+  .log { display: grid; grid-template-columns: 12px 1fr; gap: 16px; padding: 22px 4px; border-top: 1px dashed var(--line);
+    border-bottom: 1px dashed var(--line); text-decoration: none; transition: background .2s; border-radius: 4px; }
+  .log:hover { background: var(--paper-2); }
+  .log .which { font-family: var(--mono); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); }
+  .log .title { display: block; font-style: italic; font-size: 27px; line-height: 1.2; margin: 4px 0 8px; }
+  .log .moment { display: block; font-style: italic; color: var(--ink-soft); }
+  .log .go { display: inline-block; margin-top: 10px; font-size: 15px; color: var(--blush); }
+  .next { margin-top: 18px; color: var(--ink-faint); font-style: italic; font-size: 15px; }
+
+  footer { margin-top: 80px; text-align: center; color: var(--ink-faint); font-style: italic; font-size: 14px; }
+  @media (prefers-reduced-motion: reduce) {
+    .scene .rise, .buddy svg.frogo, .steam1, .steam2 { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="lights" aria-hidden="true"></div>
+
+<svg class="decor left" viewBox="0 0 120 150" aria-hidden="true">
+  <path class="pot" d="M34 110 h52 l-7 36 h-38 z"/>
+  <path d="M60 110 C60 80 44 74 38 56 M60 110 C60 84 78 78 86 60 M60 110 C58 86 60 64 60 44 M60 60 C50 58 44 50 44 42 M60 66 C72 62 78 54 78 46"/>
+  <path d="M38 56c-6-2-8-8-6-12 5 1 8 5 6 12zM86 60c6-3 7-9 4-12-4 2-6 6-4 12zM60 44c-3-6-1-12 3-13 2 5 1 10-3 13z"/>
+</svg>
+<svg class="decor right" viewBox="0 0 96 140" aria-hidden="true">
+  <path d="M48 4 v26"/><path class="pot" d="M30 30 h36 l-4 20 h-28 z"/>
+  <path d="M48 50 C48 78 34 86 30 104 M48 50 C48 80 62 88 66 106 M48 50 C46 82 48 100 48 118"/>
+  <path d="M30 104c-6 0-10 6-9 11 6-1 10-5 9-11zM66 106c6 1 10 7 8 12-5-2-9-6-8-12zM48 118c-4 4-4 11 0 14 4-3 4-10 0-14z"/>
+</svg>
+<svg class="decor shelf" viewBox="0 0 124 120" aria-hidden="true">
+  <path d="M6 66 h112 M16 66 l6 11 M108 66 l-6 11"/>
+  <rect x="18" y="42" width="9" height="24" fill="#C9D6B8" stroke="#6E6354" stroke-width="1"/>
+  <rect x="28" y="36" width="9" height="30" fill="#EBD0C7" stroke="#6E6354" stroke-width="1"/>
+  <rect x="38" y="46" width="9" height="20" fill="#AEC8CC" stroke="#6E6354" stroke-width="1"/>
+  <path d="M50 66 v-18 l11 -4 v22 z" fill="#E7BE76" stroke="#6E6354" stroke-width="1"/>
+  <rect x="82" y="48" width="22" height="18" rx="3" fill="#F8F1E4" stroke="#4A4136"/>
+  <path d="M104 52 q8 0 8 6 t-8 6" fill="none" stroke="#4A4136"/>
+  <path class="steam steam1" d="M88 44 q4 -4 0 -9" stroke="#A4977F"/>
+  <path class="steam steam2" d="M96 44 q4 -4 0 -9" stroke="#A4977F"/>
+</svg>
+<svg class="decor cat" viewBox="0 0 96 64" role="img" aria-label="a sleeping cat">
+  <path d="M20 52 q-10 -26 18 -32 q30 -6 46 8 q12 12 2 22 q-34 8 -66 2 z" fill="#EADFC9"/>
+  <path d="M66 22 l5 -9 4 8 M76 22 l8 -6 0 9" fill="#EADFC9"/>
+  <path d="M22 52 q-9 1 -3 7"/>
+  <path d="M40 40 q3 2 6 0 M52 40 q3 2 6 0"/>
+  <path d="M48 46 q2 2 4 0"/>
+</svg>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="door" aria-hidden="true">
+      <svg class="scene" viewBox="0 0 360 200" preserveAspectRatio="xMidYMax slice">
+        <g class="rise">
+          <circle class="sun" cx="180" cy="138" r="30"/>
+          <path class="line" d="M180 90 v-12 M146 104 l-9 -8 M214 104 l9 -8"/>
+        </g>
+        <path class="hill" d="M-10 200 V150 Q90 118 180 146 T370 140 V200 Z"/>
+        <path class="line" d="M72 62 q6 -6 12 0 q6 -6 12 0 M252 48 q5 -5 10 0 q5 -5 10 0"/>
+      </svg>
+      <div class="bar-v"></div><div class="bar-h"></div>
+    </div>
+    <div class="eyebrow">a series</div>
+    <h1>learning out loud</h1>
+    <div class="say">
+      <div class="buddy" aria-hidden="true">
+        <svg class="cushion" width="92" height="34" viewBox="0 0 92 34"><path d="M8 25 q-5 -17 15 -17 h46 q20 0 15 17 q3 7 -15 7 h-46 q-18 0 -15 -7z" fill="#EBD0C7" stroke="#D69E8E" stroke-width="1.3"/><path d="M14 15 q32 -6 64 0" stroke="#D69E8E" fill="none" stroke-width="1"/></svg>
+        <svg class="frogo" width="70" height="76" viewBox="0 0 78 84" fill="none" stroke="#4A4136" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M26 24 C20 12 24 6 28 8 C30 10 30 18 30 22" fill="#C9D6B8"/>
+          <path d="M52 24 C58 12 54 6 50 8 C48 10 48 18 48 22" fill="#C9D6B8"/>
+          <path d="M14 46 C14 28 26 20 39 20 C52 20 64 28 64 46 C64 64 53 72 39 72 C25 72 14 64 14 46 Z" fill="#C9D6B8"/>
+          <circle cx="30" cy="46" r="2.4" fill="#4A4136" stroke="none"/>
+          <circle cx="48" cy="46" r="2.4" fill="#4A4136" stroke="none"/>
+          <circle cx="23" cy="53" r="4" fill="#EBD0C7" stroke="none"/>
+          <circle cx="55" cy="53" r="4" fill="#EBD0C7" stroke="none"/>
+          <path d="M35 54 c4 4 8 0 8 0"/>
+        </svg>
+      </div>
+      <p class="bubble">come in, it's cozy in here.</p>
+    </div>
+  </header>
+
+  <section aria-labelledby="why">
+    <h2 id="why">why this exists</h2>
+    <p>i build AI systems at work and for myself, and i learn best by doing. so i make myself little interactive lessons, the kind you click through instead of read.</p>
+    <p>then one of them taught me something i didn't expect. i'd been writing rules for an AI agent in all caps, and she kept missing them. the lesson showed me the problem wasn't her. it was how i was teaching.</p>
+    <p class="quote">that felt too useful to keep to myself. i want others to learn with me.</p>
+    <p class="soft">so this is where those go. not everything i learn, just the lessons that changed something.</p>
+  </section>
+
+  <section aria-labelledby="bar">
+    <h2 id="bar">what makes it here</h2>
+    <ul class="rows">
+      <li><span class="dot" style="background:var(--blush)"></span><span><b>it changed what i did.</b> <span class="soft">not just what i know. i rebuilt something because of it.</span></span></li>
+      <li><span class="dot" style="background:var(--dusk)"></span><span><b>it changed how i see me doing it.</b> <span class="soft">the lesson landed on me, not only on the tool.</span></span></li>
+      <li><span class="dot" style="background:var(--sage)"></span><span><b>you don't need my context.</b> <span class="soft">if it only makes sense inside my life, it stays in my notes.</span></span></li>
+      <li><span class="dot" style="background:var(--skyblue)"></span><span><b>you learn it by doing.</b> <span class="soft">every lesson is something you click through.</span></span></li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="logs">
+    <h2 id="logs">the logs</h2>
+    <a class="log" href="more-dos/index.html">
+      <span class="dot" style="background:var(--honey)"></span>
+      <span>
+        <span class="which">log 1</span>
+        <span class="title">more dos than don'ts</span>
+        <span class="moment">the moment it clicked: "i know i be yelling sometimes ALWAYS HYPERLINK and she doesnt??" what changed: i stopped writing louder rules and started writing ones that say when, what, and why.</span>
+        <span class="go">walk through it</span>
+      </span>
+    </a>
+    <p class="next">log 2 is whatever teaches me something next.</p>
+  </section>
+
+  <footer>learning out loud</footer>
+</div>
+
+<script>
+  // string lights across the top
+  (function () {
+    var box = document.querySelector(".lights"); if (!box) return;
+    function draw() {
+      var w = Math.max(320, window.innerWidth), n = Math.ceil(w / 86), seg = w / n, path = "M0 4", bulbs = "";
+      for (var i = 0; i < n; i++) { var xm = (i * seg + seg / 2).toFixed(0), x1 = ((i + 1) * seg).toFixed(0);
+        path += " Q" + xm + " 26 " + x1 + " 4";
+        bulbs += '<line class="wire" x1="' + xm + '" y1="22" x2="' + xm + '" y2="16"/><circle class="bulb" cx="' + xm + '" cy="27" r="4.5"/>'; }
+      box.innerHTML = '<svg width="' + w + '" height="36" viewBox="0 0 ' + w + ' 36"><path class="wire" d="' + path + '"/>' + bulbs + '</svg>';
+    }
+    draw(); window.addEventListener("resize", draw);
+  })();
+
+  // honey leaves drifting past the doorway
+  (function () {
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var door = document.querySelector(".door");
+    for (var i = 0; i < 6; i++) {
+      var l = document.createElement("span"); l.className = "leaf";
+      l.style.left = (8 + Math.random() * 84) + "%";
+      l.style.animationDuration = (7 + Math.random() * 6) + "s";
+      l.style.animationDelay = (Math.random() * 8) + "s";
+      l.style.setProperty("--sx", (Math.random() * 30 - 15) + "px");
+      door.appendChild(l);
+    }
+  })();
+
+  // the cat purrs when booped
+  (function () {
+    var cat = document.querySelector(".decor.cat"); if (!cat) return;
+    cat.addEventListener("click", function () {
+      var r = cat.getBoundingClientRect(), h = document.createElement("span");
+      h.className = "heart"; h.textContent = "mrr~";
+      h.style.left = (r.left + r.width / 2 - 14) + "px"; h.style.top = r.top + "px";
+      document.body.appendChild(h); setTimeout(function () { h.remove(); }, 1200);
+    });
+  })();
+</script>
+</body>
+</html>

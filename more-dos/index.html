@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>More Dos Than Don'ts</title>
+<meta name="description" content="An interactive walk through writing rules an AI model can actually follow.">
+<style>
+/* shared styles for all learning walks
+   matches the room: cream + terra ink + georgia italic + dashed spine */
+
+:root {
+  --cream: #F8F1E4;
+  --cream-2: #FBF7EE;
+  --cream-3: #F2EBDC;
+  --ink: #3D2F22;
+  --ink-soft: #6D5A47;
+  --ink-faint: #A07050;
+  --terra: #A07050;
+  --terra-soft: rgba(160, 112, 80, 0.18);
+  --terra-line: rgba(160, 112, 80, 0.32);
+  --font-serif: Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, "Geist Mono", "SF Mono", Menlo, monospace;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--cream); color: var(--ink); }
+body {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.65;
+  min-height: 100vh;
+  padding: 48px 24px 80px 72px;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+}
+
+.spine {
+  position: absolute;
+  top: 28px;
+  bottom: 28px;
+  left: 36px;
+  width: 1px;
+  border-left: 1px dashed var(--terra-line);
+  pointer-events: none;
+}
+
+.walk-header {
+  max-width: 640px;
+  margin: 0 auto 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.walk-crumb {
+  font-size: 12px;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+.walk-crumb a {
+  color: var(--ink-faint);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--terra-line);
+}
+.walk-crumb a:hover { color: var(--ink); }
+.walk-title {
+  font-style: italic;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+  margin: 0;
+}
+
+.walk-progress {
+  max-width: 640px;
+  margin: 0 auto 36px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.walk-dot {
+  width: 22px;
+  height: 22px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+  border-radius: 50%;
+  transition: all 0.18s ease;
+}
+.walk-dot::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--terra-line);
+  display: block;
+}
+.walk-dot[data-state="visited"]::after { background: var(--terra); }
+.walk-dot[data-state="current"] {
+  background: var(--terra);
+  width: 24px;
+  height: 24px;
+}
+.walk-dot[data-state="current"]::after {
+  background: var(--cream);
+  width: 8px;
+  height: 8px;
+}
+.walk-dot:hover { transform: scale(1.1); }
+
+.step {
+  max-width: 640px;
+  margin: 0 auto;
+  animation: stepFade 380ms ease both;
+}
+@keyframes stepFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.step-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 14px;
+}
+.step h2 {
+  font-style: italic;
+  font-weight: 400;
+  font-size: 26px;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+  margin-bottom: 18px;
+  line-height: 1.25;
+}
+.step p {
+  margin-bottom: 16px;
+  text-wrap: pretty;
+}
+.step p.dim { color: var(--ink-soft); }
+.step strong { font-weight: 400; font-style: normal; color: var(--ink); border-bottom: 1px solid var(--terra-line); padding-bottom: 1px; }
+.step em { font-style: italic; }
+.step .applied {
+  background: var(--cream-2);
+  border-left: 3px solid var(--terra);
+  padding: 14px 18px;
+  margin: 20px 0;
+  border-radius: 0 8px 8px 0;
+}
+.step .applied .applied-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--terra);
+  margin-bottom: 6px;
+}
+
+.interaction {
+  margin: 28px 0;
+  padding: 22px 24px;
+  background: var(--cream-2);
+  border: 1px solid var(--terra-soft);
+  border-radius: 12px;
+}
+.interaction-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 14px;
+}
+
+.btn {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--cream);
+  border: 1px solid var(--terra-soft);
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.btn:hover { border-color: var(--terra); background: var(--cream-2); }
+.btn:disabled { color: var(--ink-faint); cursor: not-allowed; background: transparent; }
+.btn-primary { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+.btn-primary:hover { background: var(--terra); border-color: var(--terra); }
+.btn-link {
+  background: transparent;
+  border: 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--ink-faint);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 8px;
+}
+.btn-link:hover { color: var(--ink); }
+
+.walk-nav {
+  max-width: 640px;
+  margin: 48px auto 0;
+  padding-top: 24px;
+  border-top: 1px dashed var(--terra-line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.walk-nav .center { text-align: center; flex: 1; font-size: 12px; color: var(--ink-faint); font-style: italic; }
+
+.slider-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 50px;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.slider-label { font-style: italic; color: var(--ink-soft); font-size: 14px; }
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--terra-soft);
+  border-radius: 4px;
+  outline: none;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--terra);
+  cursor: grab;
+  border: 2px solid var(--cream);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+.slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--terra);
+  cursor: grab;
+  border: 2px solid var(--cream);
+}
+.slider-value { font-family: var(--font-mono); font-size: 13px; color: var(--ink); text-align: right; }
+
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 20px 0;
+}
+.compare > div {
+  background: var(--cream-2);
+  border: 1px solid var(--terra-soft);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.compare h4 {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--terra);
+  margin-bottom: 10px;
+  font-weight: 400;
+}
+.compare ul { list-style: none; padding: 0; }
+.compare li {
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ink-soft);
+  padding: 4px 0;
+  line-height: 1.5;
+}
+.compare li::before { content: "— "; color: var(--terra); font-style: normal; }
+.compare .breaks {
+  grid-column: 1 / -1;
+  background: transparent;
+  border: 0;
+  border-top: 1px dashed var(--terra-line);
+  padding-top: 14px;
+  margin-top: 4px;
+  border-radius: 0;
+}
+
+/* ── threads: a question left open here, answered by name later ──
+   the thing that turns a pile of walks into a course. */
+.thread {
+  margin: 22px 0;
+  padding: 14px 18px 14px 20px;
+  border-left: 2px dashed var(--terra-line);
+  background: transparent;
+}
+.thread .thread-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--terra);
+  margin-bottom: 6px;
+}
+.thread p { font-style: italic; color: var(--ink-soft); font-size: 15px; margin: 0; }
+.thread.paid { border-left-style: solid; border-left-color: var(--terra); }
+.thread.paid .thread-label { color: var(--ink-faint); }
+.thread a { color: var(--terra); text-decoration: none; border-bottom: 1px dotted var(--terra-line); }
+.thread a:hover { border-bottom-style: solid; }
+
+/* ── key insight: the one sentence to keep ── */
+.key-insight {
+  margin: 26px 0;
+  padding: 18px 22px;
+  background: var(--cream-3);
+  border: 1px solid var(--terra-soft);
+  border-radius: 12px;
+}
+.key-insight .ki-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--terra);
+  margin-bottom: 8px;
+}
+.key-insight p { font-size: 16px; color: var(--ink); margin: 0; text-wrap: pretty; }
+
+/* ── inline quiz: retrieval while the idea is still warm ── */
+.quiz {
+  margin: 26px 0;
+  padding: 20px 22px;
+  background: var(--cream-2);
+  border: 1px solid var(--terra-soft);
+  border-radius: 12px;
+}
+.quiz .quiz-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 12px;
+}
+.quiz .quiz-q { font-size: 16px; color: var(--ink); margin-bottom: 14px; text-wrap: pretty; }
+.quiz-options { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt {
+  text-align: left;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-style: italic;
+  color: var(--ink);
+  background: var(--cream);
+  border: 1px solid var(--terra-soft);
+  padding: 11px 15px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  line-height: 1.45;
+}
+.quiz-opt:hover:not(:disabled) { border-color: var(--terra); background: #FFFBF1; }
+.quiz-opt:disabled { cursor: default; }
+.quiz-opt.correct { border-color: var(--terra); background: var(--cream-3); }
+.quiz-opt.correct::after { content: " ✓"; color: var(--terra); font-style: normal; }
+.quiz-opt.chosen-wrong { border-color: var(--terra-line); opacity: 0.6; text-decoration: line-through; }
+.quiz-opt.faded { opacity: 0.4; }
+.quiz-feedback {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--terra-line);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  animation: stepFade 300ms ease both;
+}
+.quiz-feedback .verdict { font-style: normal; color: var(--terra); }
+
+/* ── exam: the chapter-level pass, several questions in a row ── */
+.exam-score {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-faint);
+  text-align: center;
+  margin-top: 20px;
+  font-style: italic;
+}
+
+/* ── figure: caption states the takeaway, not the contents ── */
+.figure {
+  margin: 24px 0;
+  padding: 18px;
+  background: var(--cream-2);
+  border: 1px solid var(--terra-soft);
+  border-radius: 12px;
+}
+.figure svg { display: block; width: 100%; height: auto; }
+.figure figcaption {
+  margin-top: 12px;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  text-align: center;
+}
+
+.timer-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 0;
+}
+.timer-circle {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: var(--terra-soft);
+  transition: transform 1s ease-in-out, background 1s ease;
+}
+.timer-circle.running { background: var(--terra); transform: scale(1.05); animation: breathe 4s ease-in-out infinite; }
+@keyframes breathe {
+  0%, 100% { transform: scale(0.85); }
+  50% { transform: scale(1.1); }
+}
+.timer-label { font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); letter-spacing: 0.04em; }
+
+@media (max-width: 640px) {
+  body { padding: 32px 16px 64px 44px; }
+  .spine { left: 22px; }
+  .step h2 { font-size: 22px; }
+  .compare { grid-template-columns: 1fr; }
+  .slider-row { grid-template-columns: 90px 1fr 40px; gap: 10px; }
+}
+
+</style>
+<style>
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pick { text-align: left; font-family: var(--font-serif); font-size: 14.5px; line-height: 1.45; color: var(--ink-soft); background: var(--cream); border: 1px solid var(--terra-soft); border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: all .16s ease; }
+  .pick:hover { border-color: var(--terra); }
+  .pick.on { background: var(--cream-3); border-color: var(--terra); color: var(--ink); }
+  .pick small { display: block; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 5px; }
+  .ctx { margin-top: 16px; background: #2F261D; color: #D9CDB8; border-radius: 10px; padding: 14px 16px; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.9; }
+  .ctx .lab { font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: #B8A58C; display: block; margin-bottom: 6px; }
+  .ctx mark { background: rgba(231,190,118,.28); color: #F6E3BD; border-radius: 3px; padding: 1px 3px; }
+  .ctx mark.neg { background: rgba(214,120,100,.30); color: #F3C9BD; }
+  .readout { margin-top: 12px; font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); letter-spacing: .03em; }
+  .readout b { color: var(--terra); font-weight: 400; }
+
+  textarea.rules { width: 100%; min-height: 190px; resize: vertical; font-family: var(--font-mono); font-size: 12px; line-height: 1.7; color: var(--ink); background: var(--cream); border: 1px solid var(--terra-soft); border-radius: 10px; padding: 12px 14px; }
+  textarea.rules:focus { outline: none; border-color: var(--terra); }
+  .meter { display: flex; height: 16px; border-radius: 99px; overflow: hidden; margin-top: 14px; background: var(--cream-3); }
+  .meter i { display: block; height: 100%; transition: width .35s ease; }
+  .m-do { background: #8A9E74; } .m-mix { background: #E7BE76; } .m-dont { background: #C98B78; }
+  .mkey { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; font-family: var(--font-mono); font-size: 10px; letter-spacing: .05em; color: var(--ink-faint); }
+  .mkey i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  .lines { margin-top: 14px; display: flex; flex-direction: column; gap: 5px; }
+  .ln { display: grid; grid-template-columns: 74px 1fr; gap: 10px; font-size: 13.5px; line-height: 1.45; color: var(--ink-soft); }
+  .ln span:first-child { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; padding-top: 3px; }
+  .ln.do span:first-child { color: #6F8A5C; } .ln.mix span:first-child { color: #B08A3E; } .ln.dont span:first-child { color: #B06A56; }
+  .row-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .row-btns .btn { padding: 8px 14px; font-size: 14px; }
+
+  .card { background: var(--cream); border: 1px solid var(--terra-soft); border-radius: 12px; padding: 16px 18px; }
+  .card .was { font-size: 15px; color: var(--ink); }
+  .card .was small, .card .now small { display: block; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 5px; }
+  .card textarea { width: 100%; margin-top: 12px; min-height: 64px; font-family: var(--font-serif); font-style: italic; font-size: 14.5px; color: var(--ink); background: var(--cream-2); border: 1px dashed var(--terra-line); border-radius: 8px; padding: 10px 12px; resize: vertical; }
+  .card .now { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--terra-line); font-size: 15px; color: var(--ink); }
+  .card .why { margin-top: 8px; font-style: italic; font-size: 14px; color: var(--ink-soft); }
+  .deck-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint); }
+
+  .ladder { display: flex; flex-direction: column-reverse; gap: 8px; }
+  .rung { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; text-align: left; background: var(--cream); border: 1px solid var(--terra-soft); border-radius: 10px; padding: 12px 14px; cursor: pointer; font-family: var(--font-serif); color: var(--ink); transition: all .16s ease; }
+  .rung:hover, .rung.on { border-color: var(--terra); background: var(--cream-3); }
+  .rung .n { font-family: var(--font-mono); font-size: 18px; color: var(--terra); }
+  .rung .t { font-size: 15.5px; } .rung .t small { display: block; font-size: 13px; font-style: italic; color: var(--ink-soft); margin-top: 2px; }
+  .rung-detail { margin-top: 12px; font-size: 14.5px; color: var(--ink-soft); background: var(--cream-2); border-left: 3px solid var(--terra); padding: 12px 14px; border-radius: 0 8px 8px 0; min-height: 60px; }
+
+  .spec { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+  .spec div { font-size: 14.5px; color: var(--ink); background: var(--cream); border: 1px solid var(--terra-soft); border-radius: 8px; padding: 10px 12px; transition: opacity .25s; }
+  .spec div.off { opacity: .28; }
+  .spread { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; margin-top: 14px; }
+  .spread i { display: block; aspect-ratio: 1; border-radius: 50%; background: var(--terra-line); transition: background .3s, transform .3s; }
+  .spread i.hit { background: var(--terra); transform: scale(1.1); }
+
+  .lint { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+  .lint div { display: grid; grid-template-columns: 22px 1fr; gap: 8px; font-size: 14px; color: var(--ink-soft); }
+  .lint div b { font-weight: 400; font-family: var(--font-mono); }
+  .lint .ok b { color: #6F8A5C; } .lint .no b { color: #B06A56; }
+  @media (max-width: 560px) { .pair { grid-template-columns: 1fr; } .ln { grid-template-columns: 1fr; gap: 0; } }
+</style>
+</head>
+<body>
+
+<div class="spine" aria-hidden="true"></div>
+
+<header class="walk-header">
+  <div class="walk-crumb">
+    <a href="../index.html">learning out loud</a> · log 01
+  </div>
+  <h1 class="walk-title">more dos than don'ts</h1>
+</header>
+
+<nav class="walk-progress" aria-label="step progress"></nav>
+
+<!-- ── step 1 ── -->
+<section class="step" data-step="0" hidden>
+  <div class="step-eyebrow">walk 1 · step 1 of 6 · what a rule plants</div>
+  <h2>a model reads your rule as words in its context. "never" is one word. the thing you're forbidding is all the others.</h2>
+  <p>an LLM writes by predicting the next token from everything in its <strong>context</strong>: the system prompt, your skill file, the conversation. every word you put in there is material it can draw on. that's the whole trick, and it's also the trap.</p>
+  <p>when you write <em>"never use bullet points,"</em> the words sitting in the context are <em>use bullet points</em>, with one small word in front asking it to do the opposite. usually it listens. but you spent your words describing the thing you don't want, and said nothing about what you do want.</p>
+  <div class="interaction">
+    <div class="interaction-label">pick a phrasing · see what lands in the context</div>
+    <div class="pair" id="pairs"></div>
+    <div class="ctx" id="ctx"></div>
+    <div class="readout" id="ctx-read"></div>
+  </div>
+  <p>anthropic's own prompting guide says the same thing in plain terms: tell the model what to do instead of what not to do. <em>"write in flowing prose paragraphs"</em> beats <em>"don't use markdown."</em> the "do" version describes the target. the "don't" version only rules out one of a thousand wrong answers.</p>
+  <div id="q-plant"></div>
+  <div class="walk-nav">
+    <button class="btn-link" disabled>← prev</button>
+    <div class="center"></div>
+    <button class="btn-primary" data-nav="next">next →</button>
+  </div>
+</section>
+
+<!-- ── step 2 ── -->
+<section class="step" data-step="1" hidden>
+  <div class="step-eyebrow">walk 1 · step 2 of 6 · the ratio</div>
+  <h2>so what's the ratio? let's scan a real rule file. mine.</h2>
+  <p>i built a personal AI workout coach, and below are the first sentences of rules from its instruction file. of the 27 rules there, <strong>17 opened with NEVER</strong> and 2 with ALWAYS. i wrote all of them. the meter sorts each line into three piles: a plain <em>do</em>, a <em>don't</em> with the do tucked in after it, and a <em>don't</em> with nothing to aim at.</p>
+  <div class="interaction">
+    <div class="interaction-label">edit freely · it re-scores as you type</div>
+    <textarea class="rules" id="rules" spellcheck="false"></textarea>
+    <div class="row-btns"><button class="btn" id="load-mine">reload my rules</button><button class="btn" id="load-flip">load the flipped version</button></div>
+    <div class="meter"><i class="m-do" id="m-do"></i><i class="m-mix" id="m-mix"></i><i class="m-dont" id="m-dont"></i></div>
+    <div class="mkey"><span><i class="m-do"></i>do</span><span><i class="m-mix"></i>don't, then the do</span><span><i class="m-dont"></i>don't only</span></div>
+    <div class="readout" id="ratio-read"></div>
+    <div class="lines" id="lines"></div>
+  </div>
+  <p>look at the gold lines. a lot of my rules already <em>contained</em> the do. "NEVER take a MODERATE volume cut out of the round count. <strong>Cut reps, keep rounds, leave load alone.</strong>" the good instruction is there, it's just parked behind a wall of NEVER. flip the order and it leads with the target. hit <em>load the flipped version</em> and watch the meter change color.</p>
+  <div class="walk-nav">
+    <button class="btn-link" data-nav="prev">← prev</button>
+    <div class="center"></div>
+    <button class="btn-primary" data-nav="next">next →</button>
+  </div>
+</section>
+
+<!-- ── step 3 ── -->
+<section class="step" data-step="2" hidden>
+  <div class="step-eyebrow">walk 1 · step 3 of 6 · rewrite it</div>
+  <h2>every don't has a do hiding behind it. find it first, then check yours.</h2>
+  <p>the move is always the same question: <em>if it didn't do the bad thing, what would it be doing instead?</em> write that. keep the reason, because the reason is what lets a model handle the case your rule didn't list.</p>
+  <div class="interaction">
+    <div class="interaction-label">real rules · try it before you peek</div>
+    <div class="card" id="card"></div>
+    <div class="deck-nav"><button class="btn-link" id="deck-prev">← prev rule</button><span id="deck-pos"></span><button class="btn-link" id="deck-next">next rule →</button></div>
+  </div>
+  <p>the last card is the exception, and it's important. some don'ts should stay don'ts: the ones where the action is <strong>irreversible and high-stakes</strong>. sending an email, submitting a form, deleting a file. those get a hard wall. but even a wall works better with a do next to it, so the model knows where to stop and what to say when it gets there.</p>
+  <div class="walk-nav">
+    <button class="btn-link" data-nav="prev">← prev</button>
+    <div class="center"></div>
+    <button class="btn-primary" data-nav="next">next →</button>
+  </div>
+</section>
+
+<!-- ── step 4 ── -->
+<section class="step" data-step="3" hidden>
+  <div class="step-eyebrow">walk 1 · step 4 of 6 · where a rule should live</div>
+  <h2>if you've written the same rule three times, the problem isn't the wording. it's where the rule lives.</h2>
+  <p>here's the thing my coach taught me the hard way. a rule in prose is a <em>suggestion the model usually follows</em>. for most things, usually is plenty. for a fixed shape that has to be right every single time, usually means it breaks on a random tuesday. my blank workout log (the sheet i fill in by hand at the gym) broke seven times in three months, every time with the rule sitting right there in writing.</p>
+  <p>so rules climb a ladder. tap each rung.</p>
+  <div class="interaction">
+    <div class="interaction-label">the ladder · bottom is cheapest, top is strongest</div>
+    <div class="ladder" id="ladder"></div>
+    <div class="rung-detail" id="rung-detail">tap a rung.</div>
+  </div>
+  <p>the skill file should be mostly rungs 2 and 3: dos with examples. rung 1 is for the handful of walls. and when something keeps breaking, you don't write a louder NEVER. you move it up to rung 4 or 5 and take it out of the model's hands.</p>
+  <div id="q-ladder"></div>
+  <div class="walk-nav">
+    <button class="btn-link" data-nav="prev">← prev</button>
+    <div class="center"></div>
+    <button class="btn-primary" data-nav="next">next →</button>
+  </div>
+</section>
+
+<!-- ── step 5 ── -->
+<section class="step" data-step="4" hidden>
+  <div class="step-eyebrow">walk 1 · step 5 of 6 · examples beat adjectives</div>
+  <h2>"warm and casual" means something different to everyone. an example means one thing.</h2>
+  <p>adjectives are the vaguest kind of do. <em>"be concise," "sound warm," "make it professional."</em> the model has to guess what you mean by them, and it guesses the average. an example removes the guessing. build up the instruction and watch how many different outputs it still allows.</p>
+  <div class="interaction">
+    <div class="interaction-label">add layers · the dots are possible outputs still allowed</div>
+    <div class="slider-row"><div class="slider-label">layers</div><input type="range" class="slider" id="spec-s" min="0" max="4" value="0"><div class="slider-value" id="spec-v">1</div></div>
+    <div class="spec" id="spec"></div>
+    <div class="spread" id="spread"></div>
+    <div class="readout" id="spread-read"></div>
+  </div>
+  <p class="dim">the dots are an illustration, not a measurement. the pattern is real though: each layer rules out a big chunk of wrong answers, and the example rules out the most, because it shows the shape instead of describing it. that's why the best style rule i have just says <em>"match how i wrote it in my original message."</em> my own words are the example.</p>
+  <div class="walk-nav">
+    <button class="btn-link" data-nav="prev">← prev</button>
+    <div class="center"></div>
+    <button class="btn-primary" data-nav="next">next →</button>
+  </div>
+</section>
+
+<!-- ── step 6 ── -->
+<section class="step" data-step="5" hidden>
+  <div class="step-eyebrow">walk 1 · step 6 of 6 · write one</div>
+  <h2>here's a weak skill. fix it until every check goes green.</h2>
+  <p>a skill file is just instructions the model loads when a task matches. the <em>description</em> decides when it loads, the body decides what it does. this draft is the kind that gets written at 1am after a bad session. the checklist grades it live.</p>
+  <div class="interaction">
+    <div class="interaction-label">SKILL.md · edit it</div>
+    <textarea class="rules" id="skill" spellcheck="false" style="min-height:260px"></textarea>
+    <div class="row-btns"><button class="btn" id="skill-reset">start over</button><button class="btn" id="skill-good">show a finished one</button></div>
+    <div class="lint" id="lint"></div>
+    <div class="readout" id="skill-read"></div>
+  </div>
+  <div class="thread">
+    <div class="thread-label">thread planted</div>
+    <p>that character count at the bottom isn't decoration. every character of every skill you load costs room in the context window, and the window is shared with everything else. how big is a token, what happens when you run out, and how do you chop a big document so the right piece shows up? that's the next one.</p>
+  </div>
+  <div id="exam"></div>
+  <div class="walk-nav">
+    <button class="btn-link" data-nav="prev">← prev</button>
+    <div class="center">the end</div>
+    <a class="btn btn-primary" href="../index.html" style="text-decoration:none">back to all logs →</a>
+  </div>
+</section>
+
+<script>
+(function(){try{var k="__t";localStorage.setItem(k,k);localStorage.removeItem(k);}catch(e){var m={};try{Object.defineProperty(window,"localStorage",{value:{getItem:function(k){return k in m?m[k]:null},setItem:function(k,v){m[k]=String(v)},removeItem:function(k){delete m[k]}}});}catch(e2){}}})();
+/* shared progress + navigation for walks
+   markers, not checkmarks — re-reading is the default */
+
+(function () {
+  const NS = "tos.walk";
+
+  function key(topic, walk, k) { return `${NS}.${topic}.${walk}.${k}`; }
+
+  window.Walk = {
+    /* call this once at the bottom of each walk html */
+    init({ topic, walk, totalSteps, onStep }) {
+      const state = {
+        topic, walk, totalSteps,
+        current: 0,
+        visited: new Set(),
+      };
+
+      // restore last step if there is one
+      const lastStep = parseInt(localStorage.getItem(key(topic, walk, "last-step")) || "0", 10);
+      const visitedRaw = localStorage.getItem(key(topic, walk, "visited-steps")) || "[]";
+      try { JSON.parse(visitedRaw).forEach(s => state.visited.add(s)); } catch (e) {}
+
+      // record this visit timestamp + bump visits count
+      localStorage.setItem(key(topic, walk, "last-visit"), new Date().toISOString());
+      const visits = parseInt(localStorage.getItem(key(topic, walk, "visits")) || "0", 10);
+      localStorage.setItem(key(topic, walk, "visits"), String(visits + 1));
+
+      // pick up where the visitor left off, quietly
+      if (lastStep > 0 && lastStep < totalSteps - 1) {
+        setTimeout(() => goTo(lastStep), 200);
+      }
+
+      function goTo(idx) {
+        if (idx < 0 || idx >= totalSteps) return;
+        state.current = idx;
+        state.visited.add(idx);
+        localStorage.setItem(key(topic, walk, "last-step"), String(idx));
+        localStorage.setItem(key(topic, walk, "visited-steps"), JSON.stringify([...state.visited]));
+        renderDots();
+        onStep(idx, { totalSteps, isFirst: idx === 0, isLast: idx === totalSteps - 1 });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function renderDots() {
+        const dots = document.querySelectorAll(".walk-dot");
+        dots.forEach((d, i) => {
+          let state2 = "future";
+          if (i === state.current) state2 = "current";
+          else if (state.visited.has(i)) state2 = "visited";
+          d.dataset.state = state2;
+        });
+      }
+
+      // build the dot row
+      const dotsContainer = document.querySelector(".walk-progress");
+      if (dotsContainer) {
+        dotsContainer.innerHTML = "";
+        for (let i = 0; i < totalSteps; i++) {
+          const b = document.createElement("button");
+          b.className = "walk-dot";
+          b.setAttribute("aria-label", `go to step ${i + 1}`);
+          b.addEventListener("click", () => goTo(i));
+          dotsContainer.appendChild(b);
+        }
+      }
+
+      // public api
+      state.goTo = goTo;
+      state.next = () => goTo(state.current + 1);
+      state.prev = () => goTo(state.current - 1);
+      state.markComplete = () => {
+        localStorage.setItem(key(topic, walk, "completed-at"), new Date().toISOString());
+      };
+
+      // initial render
+      goTo(0);
+
+      return state;
+    },
+
+    /* inline quiz — retrieval while the idea is still warm, mid-walk,
+       not bolted on at the end.
+       spec: { question, options: [{ text, correct, why }], label, onAnswer } */
+    quiz(el, spec) {
+      const node = typeof el === "string" ? document.querySelector(el) : el;
+      if (!node) return null;
+      node.className = "quiz";
+      node.innerHTML = `
+        <div class="quiz-label">${spec.label || "check yourself"}</div>
+        <div class="quiz-q">${spec.question}</div>
+        <div class="quiz-options"></div>
+        <div class="quiz-feedback" hidden></div>
+      `;
+      const optWrap = node.querySelector(".quiz-options");
+      const fb = node.querySelector(".quiz-feedback");
+      let answered = false;
+
+      const buttons = spec.options.map((o, i) => {
+        const b = document.createElement("button");
+        b.className = "quiz-opt";
+        b.type = "button";
+        b.textContent = o.text;
+        b.addEventListener("click", () => {
+          if (answered) return;
+          answered = true;
+          buttons.forEach((x, j) => {
+            x.disabled = true;
+            if (spec.options[j].correct) x.classList.add("correct");
+            else if (j === i) x.classList.add("chosen-wrong");
+            else x.classList.add("faded");
+          });
+          fb.innerHTML =
+            `<span class="verdict">${o.correct ? "yes." : "not quite."}</span> ${o.why || ""}`;
+          fb.hidden = false;
+          if (spec.onAnswer) spec.onAnswer(!!o.correct);
+        });
+        optWrap.appendChild(b);
+        return b;
+      });
+
+      return node;
+    },
+
+    /* chapter exam — a run of questions plus a running score.
+       spec: { questions: [quizSpec], label, onDone } */
+    exam(el, spec) {
+      const node = typeof el === "string" ? document.querySelector(el) : el;
+      if (!node) return null;
+      node.innerHTML = "";
+      const total = spec.questions.length;
+      let answered = 0, correct = 0;
+
+      spec.questions.forEach((q, i) => {
+        const slot = document.createElement("div");
+        node.appendChild(slot);
+        this.quiz(slot, Object.assign({}, q, {
+          label: `${spec.label || "exam"} · ${i + 1} of ${total}`,
+          onAnswer: (wasRight) => {
+            answered++;
+            if (wasRight) correct++;
+            score.textContent = answered < total
+              ? `${answered} of ${total} answered`
+              : `${correct} of ${total} — ${verdictFor(correct, total)}`;
+            if (answered === total && spec.onDone) spec.onDone(correct, total);
+          },
+        }));
+      });
+
+      const score = document.createElement("div");
+      score.className = "exam-score";
+      score.textContent = `0 of ${total} answered`;
+      node.appendChild(score);
+
+      function verdictFor(c, t) {
+        if (c === t) return "clean sweep";
+        if (c >= t - 1) return "solid";
+        if (c >= t / 2) return "worth a re-read";
+        return "go back through it, no shame";
+      }
+
+      return node;
+    },
+
+    /* helpers for the index pages */
+    getMarker(topic, walk) {
+      const visit = localStorage.getItem(key(topic, walk, "last-visit"));
+      const visits = parseInt(localStorage.getItem(key(topic, walk, "visits")) || "0", 10);
+      const completed = localStorage.getItem(key(topic, walk, "completed-at"));
+      return { lastVisit: visit, visits, completed };
+    },
+
+    formatMarker(marker) {
+      if (!marker.lastVisit) return null;
+      const d = new Date(marker.lastVisit);
+      const now = new Date();
+      const sameDay = d.toDateString() === now.toDateString();
+      const yesterday = new Date(now);
+      yesterday.setDate(now.getDate() - 1);
+      const wasYesterday = d.toDateString() === yesterday.toDateString();
+      const dayDiff = Math.floor((now - d) / (1000 * 60 * 60 * 24));
+
+      let when;
+      if (sameDay) when = "you came here today";
+      else if (wasYesterday) when = "you came here yesterday";
+      else if (dayDiff < 7) when = `you came here ${dayDiff} days ago`;
+      else {
+        when = `you came here on ${d.toLocaleDateString("en-US", { month: "short", day: "numeric" }).toLowerCase()}`;
+      }
+      if (marker.visits > 1) when += ` · ${marker.visits} visits`;
+      return when;
+    },
+  };
+})();
+
+</script>
+<script>
+const steps = document.querySelectorAll(".step");
+function showStep(idx) { steps.forEach((s, i) => s.hidden = i !== idx); }
+const walk = Walk.init({
+  topic: "public-blog",
+  walk: "01-more-dos",
+  totalSteps: 6,
+  onStep: (idx, ctx) => { showStep(idx); if (ctx.isLast) walk.markComplete(); },
+});
+document.querySelectorAll("[data-nav]").forEach(b => {
+  b.addEventListener("click", () => b.dataset.nav === "next" ? walk.next() : walk.prev());
+});
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+/* ── step 1: what a rule plants ──────────────────────────────── */
+(function () {
+  const PAIRS = [
+    { dont: "never use bullet points or headers.", do: "write in flowing paragraphs, like a note to a friend.",
+      dontWords: ["bullet points", "headers"], doWords: ["flowing paragraphs", "a note to a friend"] },
+    { dont: "don't be robotic or over-explain.", do: "match my energy: short, casual, a little funny. one idea per message.",
+      dontWords: ["robotic", "over-explain"], doWords: ["short, casual, a little funny", "one idea per message"] },
+    { dont: "ALWAYS HYPERLINK.", do: "when a reply mentions a work item, link it with the item's title as the text, so people click straight in instead of searching for a number.",
+      dontWords: ["HYPERLINK"], doWords: ["link it with the item's title as the text", "click straight in"] },
+  ];
+  let i = 0, side = "dont";
+  const box = $("pairs");
+  function render() {
+    const p = PAIRS[i];
+    box.innerHTML =
+      `<button class="pick${side === "dont" ? " on" : ""}" data-s="dont"><small>the don't</small>${esc(p.dont)}</button>` +
+      `<button class="pick${side === "do" ? " on" : ""}" data-s="do"><small>the do</small>${esc(p.do)}</button>`;
+    box.querySelectorAll(".pick").forEach(b => b.onclick = () => { side = b.dataset.s; render(); });
+    const text = p[side], words = side === "dont" ? p.dontWords : p.doWords;
+    let html = esc(text);
+    words.forEach(w => { html = html.replace(esc(w), `<mark class="${side === "dont" ? "neg" : ""}">${esc(w)}</mark>`); });
+    $("ctx").innerHTML = `<span class="lab">in the context window</span>${html}` +
+      `<br><span class="lab" style="margin-top:10px">what it describes</span>${side === "dont" ? "the thing to avoid" : "the thing to make"}`;
+    $("ctx-read").innerHTML = side === "dont"
+      ? `the vivid words are <b>${words.join(", ")}</b>, the exact thing you don't want`
+      : `the vivid words are <b>${words.join(", ")}</b>, a picture of the target`;
+  }
+  const more = document.createElement("div");
+  more.className = "row-btns";
+  more.innerHTML = `<button class="btn" id="pair-next">another rule</button>`;
+  $("ctx-read").after(more);
+  $("pair-next").onclick = () => { i = (i + 1) % PAIRS.length; side = "dont"; render(); };
+  render();
+})();
+
+Walk.quiz("#q-plant", {
+  question: "you wrote \"don't make the plan too long\" and the plans are still too long. what's the better fix?",
+  options: [
+    { text: "\"NEVER make the plan too long\" in caps",
+      why: "louder isn't clearer. \"too long\" still has no number in it, so it still doesn't know where the line is." },
+    { text: "\"keep the plan under 10 lines: the lifts, sets and reps, one line on why\"",
+      correct: true,
+      why: "yes. a length it can count, and a picture of what goes in those lines. now it knows the target." },
+    { text: "delete the rule, it's not working anyway",
+      why: "the goal is real, the rule just doesn't describe it. rewrite it, don't drop it." },
+  ],
+});
+
+/* ── step 2: the ratio meter ─────────────────────────────────── */
+const MINE = [
+  "NEVER skip step 1. The session type is determined by code, not by you.",
+  "ALWAYS record provenance in the snapshot, one line, every morning.",
+  "NEVER hand-type the 7-day heart rate average. The tool computes it from the logs.",
+  "NEVER pick exercises without running the exercise-selection tool first.",
+  "NEVER take a MODERATE volume cut out of the round count. Cut reps, keep rounds, leave load alone.",
+  "NEVER prescribe an exercise as a name plus a load. Name the setup every time: grip, angle, seated vs standing.",
+  "NEVER log a session without first collecting post-workout metrics.",
+  "NEVER say a session is logged without running the save step.",
+  "NEVER state an inferred number as if I gave it. Log sleep ~9-10h (est.), not 9.5hrs.",
+  "Core work is logged structured: name, sets, duration_s and/or reps, load if weighted.",
+  "Run the progress report every couple of weeks, and whenever I ask is it working.",
+];
+const FLIPPED = [
+  "Start every morning with the session-type tool. Code decides what today is.",
+  "Record provenance in the snapshot, one line, every morning.",
+  "Let the tool compute the 7-day heart rate average. Enter it by hand only when the tool says the logs are too sparse.",
+  "On strength days, get exercises from the exercise-selection tool.",
+  "On MODERATE days, cut reps by ~25%. Keep rounds and load where they are.",
+  "Write every exercise as name + setup + load: \"bench dip, dumbbell flat across thighs, 20 lb.\"",
+  "After a session, collect watch metrics and how I feel before writing the log.",
+  "Say \"logged\" only after the save step passes.",
+  "Mark estimates as estimates: \"sleep ~9-10h (est.)\".",
+  "Log core work structured: name, sets, duration_s and/or reps, load if weighted.",
+  "Run the progress report every couple of weeks, and whenever I ask is it working.",
+];
+(function () {
+  const ta = $("rules");
+  const NEG = /\b(never|don'?t|do not|avoid|must not|no longer|stop)\b/i;
+  function classify(line) {
+    if (!NEG.test(line)) return "do";
+    const parts = line.split(/(?<=[.:;])\s+/).filter(Boolean);
+    return parts.slice(1).some(p => !NEG.test(p) && p.length > 12) ? "mix" : "dont";
+  }
+  function score() {
+    const lines = ta.value.split("\n").map(s => s.trim()).filter(Boolean);
+    const c = { do: 0, mix: 0, dont: 0 };
+    const rows = lines.map(l => { const k = classify(l); c[k]++; return { k, l }; });
+    const n = lines.length || 1;
+    $("m-do").style.width = (c.do / n * 100) + "%";
+    $("m-mix").style.width = (c.mix / n * 100) + "%";
+    $("m-dont").style.width = (c.dont / n * 100) + "%";
+    $("ratio-read").innerHTML = `<b>${c.do}</b> do · <b>${c.mix}</b> don't then do · <b>${c.dont}</b> don't only` +
+      (c.dont + c.mix === 0 ? " · all aimed at a target" : "");
+    const LAB = { do: "do", mix: "don't → do", dont: "don't" };
+    $("lines").innerHTML = rows.map(r => `<div class="ln ${r.k}"><span>${LAB[r.k]}</span><span>${esc(r.l)}</span></div>`).join("");
+  }
+  ta.value = MINE.join("\n");
+  ta.addEventListener("input", score);
+  $("load-mine").onclick = () => { ta.value = MINE.join("\n"); score(); };
+  $("load-flip").onclick = () => { ta.value = FLIPPED.join("\n"); score(); };
+  score();
+})();
+
+/* ── step 3: rewrite deck ───────────────────────────────────── */
+(function () {
+  const DECK = [
+    { was: "NEVER hand-type the 7-day heart rate average.", now: "let the tool compute the average from the session logs. enter it by hand only when the tool says the logs are too sparse.",
+      why: "the don't forbids one action. the do names who owns the number and the one case where you step in." },
+    { was: "NEVER prescribe an exercise as a name plus a load.", now: "write every exercise as name + setup + load, like: \"bench dip · dumbbell flat across your thighs · 20 lb\".",
+      why: "the example is doing the heavy lifting. it shows the exact shape, so accessories get the same treatment as staples." },
+    { was: "ALWAYS HYPERLINK.", now: "when a reply, comment, or draft mentions a work item, link it inline with the item's title as the text, because people should click straight in instead of searching for a number.",
+      why: "the caps said it mattered, not when or how. this one names the situation, the shape, and the reason, so it holds in cases i never listed." },
+    { was: "Don't be robotic or over-explain.", now: "talk like a friend who knows the science: casual, direct, a little funny. give the one thing that matters, then stop.",
+      why: "\"robotic\" is an adjective about the wrong answer. this paints the right one." },
+    { was: "HARD RULE: never send an email in my name without my okay.", now: "keep this one a wall. and add the do: draft it, show me, and ask \"ready to send to [person]?\"",
+      why: "irreversible + high stakes = a real don't. the do next to it tells the model exactly where to stop and what to say.", wall: true },
+  ];
+  let i = 0; const tries = {};
+  function render() {
+    const d = DECK[i];
+    $("card").innerHTML =
+      `<div class="was"><small>${d.wall ? "the wall" : "the don't"}</small>${esc(d.was)}</div>` +
+      `<textarea id="try" placeholder="your do version first…">${esc(tries[i] || "")}</textarea>` +
+      `<div class="row-btns"><button class="btn" id="peek">show mine</button></div>` +
+      `<div id="reveal" hidden><div class="now"><small>${d.wall ? "keep it, and pair it" : "the do"}</small>${esc(d.now)}</div><div class="why">${esc(d.why)}</div></div>`;
+    $("try").oninput = e => tries[i] = e.target.value;
+    $("peek").onclick = () => { $("reveal").hidden = false; $("peek").hidden = true; };
+    $("deck-pos").textContent = `${i + 1} of ${DECK.length}`;
+  }
+  $("deck-prev").onclick = () => { i = (i + DECK.length - 1) % DECK.length; render(); };
+  $("deck-next").onclick = () => { i = (i + 1) % DECK.length; render(); };
+  render();
+})();
+
+/* ── step 4: the ladder ─────────────────────────────────────── */
+(function () {
+  const RUNGS = [
+    { t: "a don't in prose", s: "\"never do X\"",
+      d: "cheapest to write, weakest to hold. fine for a few hard walls. as the main tool, it's how you end up with 17 NEVERs." },
+    { t: "a do in prose", s: "\"do Y, because Z\"",
+      d: "describes the target and the reason. the reason matters: it lets the model handle cases the rule never listed. this should be most of a skill file." },
+    { t: "a do with an example", s: "\"do Y, like this: …\"",
+      d: "the example shows the shape so the model isn't guessing from adjectives. my setup rule got here: \"the dumbbell goes flat across your thighs on a bench dip.\"" },
+    { t: "a template or renderer", s: "code builds the shape, the model fills blanks",
+      d: "my blank log. after seven breaks from typing it from memory, a small function started building it. the model stopped owning the format at all. then the paste itself got abbreviated (\"same three\"), so now the sheet states its own line count on line one." },
+    { t: "a gate with a test", s: "code refuses the wrong thing",
+      d: "the strongest rung. my coach can't show me a plan until its pipeline has run, can't save a log that has no matching plan, and fails if an exercise is missing its setup line. no wording can talk its way past these." },
+  ];
+  const box = $("ladder");
+  RUNGS.forEach((r, i) => {
+    const b = document.createElement("button");
+    b.className = "rung";
+    b.innerHTML = `<span class="n">${i + 1}</span><span class="t">${esc(r.t)}<small>${esc(r.s)}</small></span>`;
+    b.onclick = () => { box.querySelectorAll(".rung").forEach(x => x.classList.remove("on")); b.classList.add("on"); $("rung-detail").textContent = r.d; };
+    box.appendChild(b);
+  });
+})();
+
+Walk.quiz("#q-ladder", {
+  question: "your meeting-notes agent keeps changing the date format on action items. you've told it twice. what's the next move?",
+  options: [
+    { text: "add \"NEVER change date formats\" to the skill in caps",
+      why: "that's rung 1, and it already failed at rung 2. louder doesn't climb the ladder." },
+    { text: "give it the exact format with an example, and add a check that flags any date that doesn't match",
+      correct: true,
+      why: "yes. rung 3 so it knows the shape, rung 5 so a slip gets caught before anyone reads it." },
+    { text: "stop using the agent and write the notes by hand",
+      why: "that works, but it throws away the 90% it gets right. fix where the rule lives instead." },
+  ],
+});
+
+/* ── step 5: examples beat adjectives ────────────────────────── */
+(function () {
+  const LAYERS = [
+    "write a check-in message to a friend.",
+    "+ make it warm and casual.",
+    "+ all lowercase, no em dashes, 2 to 3 short lines.",
+    "+ like this: \"hiii how'd the lift go?? proud of u for showing up today\"",
+    "+ because they read these on their phone between meetings, and anything that looks like a report feels like homework.",
+  ];
+  const ALLOWED = [48, 34, 14, 5, 3];
+  const spec = $("spec"), spread = $("spread");
+  spec.innerHTML = LAYERS.map(l => `<div>${esc(l)}</div>`).join("");
+  spread.innerHTML = Array.from({ length: 48 }, () => "<i></i>").join("");
+  const NOTES = ["anything from a formal email to a meme",
+    "\"warm\" still means something different to everyone",
+    "now there's a shape it can check itself against",
+    "an example pins the voice almost exactly",
+    "and the why lets it handle a case the rule never listed"];
+  function set(k) {
+    $("spec-v").textContent = k + 1;
+    [...spec.children].forEach((d, i) => d.classList.toggle("off", i > k));
+    const dots = [...spread.children], n = ALLOWED[k];
+    dots.forEach((d, i) => d.classList.toggle("hit", i < n));
+    $("spread-read").innerHTML = `about <b>${n}</b> of 48 styles still fit · ${NOTES[k]}`;
+  }
+  $("spec-s").oninput = e => set(+e.target.value);
+  set(0);
+})();
+
+/* ── step 6: write a skill ───────────────────────────────────── */
+(function () {
+  const WEAK = `---
+name: checkin-message
+description: messages
+---
+NEVER be formal.
+Don't write long messages.
+Don't use em dashes.
+Never sound like a robot.
+Be warm.`;
+  const GOOD = `---
+name: checkin-message
+description: Use when drafting a check-in text to a friend after a workout, a rough day, or a win they mentioned.
+---
+Write 2 to 3 short lines, all lowercase, the way close friends text.
+Open with the specific thing they did, then one line of real encouragement.
+Use commas or line breaks for pauses. Leave out em dashes, they read as formal.
+
+Example:
+hiii how'd the lift go?? you hit 25 on the row, that's a new number
+proud of u for showing up today
+
+Why: they read these on their phone between meetings. anything that looks like a report feels like homework.
+
+Don't send it. Draft it and show me, since it goes out in my name.`;
+  const ta = $("skill");
+  const NEG = /\b(never|don'?t|do not|avoid|must not)\b/i;
+  function lint() {
+    const t = ta.value;
+    const fm = t.match(/^---\s*\n([\s\S]*?)\n---/);
+    const desc = fm ? ((fm[1].match(/description:\s*(.*)/i) || [])[1] || "") : "";
+    const body = fm ? t.slice(fm[0].length) : t;
+    const lines = body.split("\n").map(s => s.trim()).filter(s => s && !/^(example|why)\s*:/i.test(s));
+    const donts = lines.filter(l => NEG.test(l)).length;
+    const dos = lines.filter(l => !NEG.test(l) && /^[a-z]/i.test(l)).length;
+    const checks = [
+      [/\buse (when|for|this)\b/i.test(desc) && desc.length > 30, "the description says when to use it", "description should start \"Use when…\" and name the situation"],
+      [dos > donts, `more dos than don'ts (${dos} to ${donts})`, `more dos than don'ts, right now ${dos} to ${donts}`],
+      [/example\s*:/i.test(body), "has a concrete example", "add an Example: showing the actual output"],
+      [/\b(why|because)\b/i.test(body), "gives the reason", "add a Why: so it can handle cases you didn't list"],
+      [!/\b(warm|nice|good|professional|robot)\b\.?$/im.test(body) || /example\s*:/i.test(body), "no adjective left standing alone", "a line like \"be warm.\" needs an example to mean anything"],
+      [donts <= 2, donts ? "the don'ts are saved for walls" : "no don'ts at all, that works too", "too many don'ts, keep them for walls"],
+    ];
+    $("lint").innerHTML = checks.map(([ok, yes, no]) => `<div class="${ok ? "ok" : "no"}"><b>${ok ? "✓" : "·"}</b><span>${esc(ok ? yes : no)}</span></div>`).join("");
+    const chars = t.length, pass = checks.filter(c => c[0]).length;
+    $("skill-read").innerHTML = `<b>${pass}</b> of ${checks.length} · ${chars} characters ≈ <b>${Math.round(chars / 4)}</b> tokens`;
+  }
+  ta.value = WEAK;
+  ta.addEventListener("input", lint);
+  $("skill-reset").onclick = () => { ta.value = WEAK; lint(); };
+  $("skill-good").onclick = () => { ta.value = GOOD; lint(); };
+  lint();
+})();
+
+/* ── exam ────────────────────────────────────────────────────── */
+Walk.exam("#exam", {
+  label: "more dos than don'ts",
+  questions: [
+    { question: "why does \"write in flowing paragraphs\" usually beat \"don't use bullet points\"?",
+      options: [
+        { text: "models ignore the word \"don't\"",
+          why: "they don't ignore it, they usually follow it. the problem is it only rules out one wrong answer and never describes the right one." },
+        { text: "it describes the target, so the model knows what to make instead of just one thing to avoid",
+          correct: true, why: "yes. a do is a picture of the answer. a don't is one crossed-out option out of many." },
+        { text: "shorter instructions are always better",
+          why: "the do version is actually longer here. length isn't the point, aim is." },
+      ] },
+    { question: "which rule should stay a hard don't?",
+      options: [
+        { text: "don't use em dashes",
+          why: "that's a style preference. \"use commas or line breaks for pauses\" says the same thing as a do." },
+        { text: "never send an email in my name without my okay",
+          correct: true, why: "irreversible and high stakes. keep the wall, and pair it with the do: draft it, show me, wait." },
+        { text: "don't write long plans",
+          why: "that's a length target in disguise. \"under 10 lines\" is the do." },
+      ] },
+    { question: "the same rule has broken seven times despite being written down clearly. what does the ladder say?",
+      options: [
+        { text: "rewrite it more forcefully",
+          why: "that stays on the same rung. a rule that keeps breaking needs to move up, not get louder." },
+        { text: "add more examples to the prompt",
+          why: "that's rung 3, and it helps. but for a fixed shape that has to be exact, code should own it." },
+        { text: "move it into code: a renderer that builds the shape, or a gate that refuses the wrong one",
+          correct: true, why: "exactly what my coach needed for the workout log and the plan gate. the model stops being the thing that remembers." },
+      ] },
+  ],
+});
+</script>
+</body>
+</html>
