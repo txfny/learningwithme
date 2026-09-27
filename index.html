@@ -101,6 +101,9 @@
   .log .go { display: inline-block; margin-top: 10px; font-size: 15px; color: var(--blush); }
   .next { margin-top: 18px; color: var(--ink-faint); font-style: italic; font-size: 15px; }
 
+  .letters { margin-top: 26px; font-style: italic; color: var(--ink-soft); }
+  .letters a, .log-links a, footer a { color: var(--ink); text-decoration-color: var(--blush); text-underline-offset: 3px; }
+  .log-links { margin-top: 10px; font-size: 15px; font-style: italic; color: var(--ink-faint); }
   footer { margin-top: 80px; text-align: center; color: var(--ink-faint); font-style: italic; font-size: 14px; }
   @media (prefers-reduced-motion: reduce) {
     .scene .rise, .buddy svg.frogo, .steam1, .steam2 { animation: none !important; }
@@ -172,6 +175,7 @@
       </div>
       <p class="bubble">come in, it's cozy in here.</p>
     </div>
+    <p class="letters">new logs come as letters too. <a href="https://txfny.substack.com/subscribe">get them in your inbox</a></p>
   </header>
 
   <section aria-labelledby="why">
@@ -194,19 +198,19 @@
 
   <section aria-labelledby="logs">
     <h2 id="logs">the logs</h2>
-    <a class="log" href="more-dos/index.html">
+    <div class="log">
       <span class="dot" style="background:var(--honey)"></span>
       <span>
         <span class="which">log 1</span>
         <span class="title">more dos than don'ts</span>
         <span class="moment">the moment it clicked: "i know i be yelling sometimes ALWAYS HYPERLINK and she doesnt??" what changed: i stopped writing louder rules and started writing ones that say when, what, and why.</span>
-        <span class="go">walk through it</span>
+        <span class="log-links"><a href="more-dos/index.html">walk through it</a> &nbsp;or&nbsp; <a href="https://txfny.substack.com">read the story</a></span>
       </span>
-    </a>
+    </div>
     <p class="next">log 2 is whatever teaches me something next.</p>
   </section>
 
-  <footer>learning out loud</footer>
+  <footer>learning out loud &nbsp;·&nbsp; <a href="https://txfny.substack.com">the letters, on substack</a></footer>
 </div>
 
 <script>
